@@ -1,30 +1,35 @@
 {
   description = "Base system configuration for Framework 13";
-
+  
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
-
-  outputs = { self, nixpkgs }: {
-    nixosConfigurations.mysystem = nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux"; 
-      modules = [
-        ({ config, pkgs, ... }: {
-          imports = [
-            ./hardware-configuration.nix
-          ];
-
-          # Bootloader
-          boot.loader.systemd-boot.enable = true;
-          boot.loader.efi.canTouchEfiVariables = true;
-
-          # Networking
-          networking.hostName = "nixos";
-          networking.networkmanager.enable = true;
-
-          # Nix settings
-          nix.settings.experimental-features = [ "nix-command" "flakes" ];
-
+  
+  outputs = { self, nixpkgs, home-manager }: 
+    let
+      system = "x86_64-linux";
+      pkgs = nixpkgs.legacyPackages.${system};
+    in {
+      nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
+        inherit system;
+        modules = [
+          ./hardware-configuration.nix
+          home-manager.nixosModules.home-manager
+          ({ config, pkgs, ... }: {
+            # Your existing configuration here...
+            
+            boot.loader.systemd-boot.enable = true;
+            boot.loader.efi.canTouchEfiVariables = true;
+            
+            networking.hostName = "nixos";
+            networking.networkmanager.enable = true;
+            
+            nix.settings.experimental-features = [ "nix-command" "flakes" ];
+            
           # Time zone and localization
           time.timeZone = "America/Los_Angeles";
           i18n.defaultLocale = "en_US.UTF-8";
@@ -88,15 +93,25 @@
 
           # System packages
           environment.systemPackages = with pkgs; [
-            # Add any system-wide packages here
+            git
           ];
 
-          # Shell aliases
-          environment.interactiveShellInit = ''
-            alias conf='sudo nano /etc/nixos/configuration.nix'
-            alias switch='sudo nixos-rebuild switch'
-            alias flake='nano ~/flake.nix'
-          '';
+          # Add home-manager configuration
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
+          home-manager.backupFileExtension = "backup";
+          home-manager.users.nymph = { pkgs, ... }: {
+            home.stateVersion = "24.05";
+            
+            programs.bash = {
+              enable = true;
+              shellAliases = {
+                conf = "sudo nano /etc/nixos/configuration.nix";
+                switch = "sudo nixos-rebuild switch";
+                flake = "sudo nano /etc/nixos/flake.nix";  # Adjust this path as needed
+              };
+            };
+          };
 
           # System version
           system.stateVersion = "24.05";
