@@ -111,6 +111,12 @@
                 flake = "sudo nano /etc/nixos/flake.nix";  # Adjust this path as needed
               };
             };
+
+            programs.git = {
+              enable = true;
+              userEmail = "quantnymph@gmail.com";
+              userName = "RhizoNymph";
+            };
           };
 
           # System version
