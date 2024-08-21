@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    base.url = "github:rhizonymph/nix-flakes?dir=python&file=python310.nix";
+    base.url = "github:rhizonymph/nix-flakes?dir=python310";
   };
 
   outputs = { self, nixpkgs, flake-utils, base }:
