@@ -117,12 +117,12 @@
                 cfs = "cf && s";
                 nd = "nix develop";
                 
-                v="python3 -m venv venv && . venv/bin/activate"
-                vr="v && pip install -r requirements.txt"
-                va=". venv/bin/activate"
-                tl="tmux list-sessions"
-                ta="tmux attach -t "
-                tk="tmux kill-session -t "
+                v="python3 -m venv venv && . venv/bin/activate";
+                vr="v && pip install -r requirements.txt";
+                va=". venv/bin/activate";
+                tl="tmux list-sessions";
+                ta="tmux attach -t ";
+                tk="tmux kill-session -t ";
 
                 o = "ssh office";
                 r = "ssh reth";
