@@ -1,6 +1,6 @@
 {
   description = "Base system configuration for Framework 13";
-  
+
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     home-manager = {
@@ -8,8 +8,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
-  
-  outputs = { self, nixpkgs, home-manager }: 
+
+  outputs = { self, nixpkgs, home-manager }:
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
@@ -21,15 +21,15 @@
           home-manager.nixosModules.home-manager
           ({ config, pkgs, ... }: {
             # Your existing configuration here...
-            
+
             boot.loader.systemd-boot.enable = true;
             boot.loader.efi.canTouchEfiVariables = true;
-            
+
             networking.hostName = "nixos";
             networking.networkmanager.enable = true;
-            
+
             nix.settings.experimental-features = [ "nix-command" "flakes" ];
-            
+
           # Time zone and localization
           time.timeZone = "America/Los_Angeles";
           i18n.defaultLocale = "en_US.UTF-8";
@@ -95,6 +95,9 @@
           # System packages
           environment.systemPackages = with pkgs; [
             git
+            python310
+            python310Packages.pip
+            python310Packages.pipx
           ];
 
           # Add home-manager configuration
@@ -103,13 +106,26 @@
           home-manager.backupFileExtension = "backup";
           home-manager.users.nymph = { pkgs, ... }: {
             home.stateVersion = "24.05";
-            
+
             programs.bash = {
               enable = true;
               shellAliases = {
-                conf = "sudo nano /etc/nixos/configuration.nix";
-                switch = "sudo nixos-rebuild switch";
-                flake = "sudo nano /etc/nixos/flake.nix";  # Adjust this path as needed
+                c = "sudo nano /etc/nixos/configuration.nix";
+                s = "sudo nixos-rebuild switch";
+                f = "sudo nano ~/nix-flakes/system.nix";
+                cf = "sudo cp system.nix /etc/nixos/flake.nix";
+                cfs = "cf && s";
+                nd = "nix develop";
+                
+                v="python3 -m venv venv && . venv/bin/activate"
+                vr="v && pip install -r requirements.txt"
+                va=". venv/bin/activate"
+                tl="tmux list-sessions"
+                ta="tmux attach -t "
+                tk="tmux kill-session -t "
+
+                o = "ssh office";
+                r = "ssh reth";
               };
             };
 
@@ -118,6 +134,25 @@
               userEmail = "quantnymph@gmail.com";
               userName = "RhizoNymph";
             };
+
+            programs.ssh = {
+              enable = true;
+              matchBlocks = {
+                "office" = {
+                  hostname = "";
+                  user = "";
+                  port = 22;
+                  identityFile = "~/.ssh/id_rsa";
+                };
+                "reth" = {
+                  hostname = "";
+                  user = "";
+                  port = 22;
+                  identityFile = "~/.ssh/id_rsa";
+                };
+              };
+            };
+
           };
 
           # System version
